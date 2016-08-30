@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: jt5RuvWUr+2DjbjSElSnB6BDfTCY50ktJPdu2DEiEy4bHD8OQKvOhh45dx905C6yJPKyDTyGweYVhm2XiX2N2lCokqonSISZ/mekvxfu/urJHz0OJosy2kQmjAUdFU1hVqcQACFjL+rX0FjYwXIFIxLBXPAPj+mOpPC0TIMoVWMf80t5Ss4A+xSR7/+FHoukQRyADY8WMBVdYmP6uIWtjUx9PZYKRww2DA44cobbWxTo382Btv9uXEm21TOcx1yJcLvN317oc7SwDjM37CfHWV/70YIqbTjbdwZ5iv0l6ri0r1ZqshQUOofky6sIZiXwAyZk37jRdbd6l9ouNvrJJlwxjK50BitRXi3LuYO1v/kgwuhmepi3ZNgsPS0ylPphbxb3y6MgTQv3miQSJvRzpigObTgNmCHbj8qrGV2fE0SNQIHgvwuQy8xySuMMAcZ9got7b436CbblLLbBWxT4dbq6/yhaYSKfaKhTrCHaEjhyR3CBpBDEepojHAsgKoeCV/R6ZWPHylker5t/awClvr2YO6LvNHzLc8/PCsve4gabELB8OlcRXlUWJDUt672qqoi7I76JVZrUlgU/+z5oc12Bu/17OU+233ud++YtvZpUpgI9uac4FoJZDFjMjC+C6os+GY0kC4i6sOJoPDu/pOcic7z0Lb3gHmEt6dWAvLQ=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Mark-Twain--A-Biography.-Volume-I-Part-2--1835-1866_2983
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
